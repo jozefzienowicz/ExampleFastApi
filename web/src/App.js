@@ -1,11 +1,37 @@
 import './App.css';
 import React, { useState, useEffect } from 'react';
-import { fetchWeatherData } from "./utils/requests";
+import {
+  createFavouriteZipCode,
+  fetchWeatherData,
+  deleteFavouriteZipCode,
+  fetchFavouriteZipCodes
+} from "./utils/requests";
 
 function App() {
   const [data, setData] = useState({});
   const [dataError, setDataError] = useState(true);
+  const [favouriteZipCodes, setFavouriteZipCodes] = useState([]);
   const [zipCode, setZipCode] = useState('')
+
+  function getUserCookie() {
+    let user_cookie = localStorage.getItem("user_cookie")
+    if (!user_cookie) {
+      user_cookie = Math.floor(Math.random() * 1000000) + 1
+      localStorage.setItem("user_cookie", user_cookie.toString());
+    }
+    return user_cookie
+  }
+
+
+  const fetchFavouriteZipCodesData = async () => {
+    let user_cookie = getUserCookie()
+    const response = await fetchFavouriteZipCodes(user_cookie)
+    setFavouriteZipCodes(response)
+  };
+
+  useEffect( () => {
+    fetchFavouriteZipCodesData();
+  }, []);
 
   function changeZipCode(event) {
     setZipCode(event.target.value)
@@ -30,6 +56,30 @@ function App() {
   async function fetchWeather(event) {
     event.preventDefault();
     await fetchData(zipCode);
+  }
+
+  async function fetchFavouriteZipCode(zip_code) {
+    setZipCode(zip_code)
+    await fetchData(zip_code);
+  }
+
+  async function removeFavouriteZipCode(event, id) {
+    event.stopPropagation()
+    const zip_codes_list = favouriteZipCodes.filter(favourite_zip_codes =>
+      favourite_zip_codes.id !== id
+    )
+    setFavouriteZipCodes(zip_codes_list)
+    await deleteFavouriteZipCode(id)
+  }
+
+  async function saveFavouriteZipCode(name, code) {
+    let user_cookie = getUserCookie()
+    await createFavouriteZipCode({
+        name,
+        code,
+        user_cookie,
+    })
+    await fetchFavouriteZipCodesData()
   }
 
   return (
@@ -77,18 +127,18 @@ function App() {
         </div>
       </nav>
       <footer className="footer">
-        <ul className="list-group" data-testid="favourite_zip_codes">
+        <ul className="list-group" key={Object.keys(favouriteZipCodes).length} data-testid="favourite_zip_codes">
           {favouriteZipCodes.length && favouriteZipCodes.map((zip_code, index) =>
             <li
               className="list-group-item"
               key={`${zip_code.name}-${zip_code.code}-${index}`}
-              onClick={() => {}})}
+              onClick={() => fetchFavouriteZipCode(zip_code.code)}
             >
               {zip_code.name}
               <button
                 type="button"
                 className="btn btn-default delete_button"
-                onClick={(event) => {}}}
+                onClick={(event) => removeFavouriteZipCode(event, zip_code.id)}
               >
                 X
               </button>
@@ -127,7 +177,7 @@ function App() {
                   <button
                     type="button"
                     className="btn btn-primary"
-                    onClick={() => {}}}
+                    onClick={() => saveFavouriteZipCode(data?.name, data?.zip_code)}
                   >
                     Add to favorites
                   </button>
