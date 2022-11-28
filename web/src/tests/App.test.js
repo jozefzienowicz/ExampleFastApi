@@ -1,39 +1,29 @@
 import React from "react";
-import { render, unmountComponentAtNode } from "react-dom";
-import { act } from "react-dom/test-utils";
 import App from "../App";
+import { render } from '@testing-library/react';
 
-let container = null;
+async function mockFetch(url) {
+  return {
+      ok: true,
+      status: 200,
+      json: async () => [{
+        name: "Washington",
+        code: "55555",
+        id: "123",
+        user_cookie: "728063"
+      }]
+  };
+}
+
 beforeEach(() => {
-  container = document.createElement("div");
-  document.body.appendChild(container);
+  jest.spyOn(window, "fetch").mockImplementation(mockFetch);
 });
 
 afterEach(() => {
-  unmountComponentAtNode(container);
-  container.remove();
-  container = null;
+  jest.restoreAllMocks()
 });
 
-it("renders favourite zip codes", async () => {
-  const fakeFavouriteData = [{
-    name: "Washington",
-    code: "55555",
-    id: "123",
-    user_cookie: "728063"
-  }];
-  jest.spyOn(global, "fetch").mockImplementation(() =>
-    Promise.resolve({
-      json: () => Promise.resolve(fakeFavouriteData)
-    })
-  );
-
-  await act(async () => {
-    render(<App />, container);
-  });
-
-  console.log(container.querySelector("[data-testid='favourite_zip_codes']").textContent)
-  expect(container.querySelector("[data-testid='favourite_zip_codes']").textContent).toBe(`${fakeFavouriteData[0].name}X`);
-
-  global.fetch.mockRestore();
+test('test favourite zip codes', async () => {
+  const { getByTestId } = render(<App />);
+  expect(await getByTestId('favourite_zip_codes')).toHaveTextContent('Washington')
 });

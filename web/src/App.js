@@ -6,6 +6,8 @@ import {
   deleteFavouriteZipCode,
   fetchFavouriteZipCodes
 } from "./utils/requests";
+import Autocomplete from '@mui/material/Autocomplete';
+import TextField from '@mui/material/TextField';
 
 function App() {
   const [data, setData] = useState({});
@@ -31,10 +33,10 @@ function App() {
 
   useEffect( () => {
     fetchFavouriteZipCodesData();
-  }, []);
+  });
 
-  function changeZipCode(event) {
-    setZipCode(event.target.value)
+  function changeZipCode(event, value) {
+    setZipCode(value)
   }
 
   function getValueOrNull(field) {
@@ -107,15 +109,19 @@ function App() {
             _lpchecked="1"
             onSubmit={fetchWeather}
           >
-            <input
-              data-testid="search-input"
-              className="form-control mr-sm-2"
-              type="text"
-              placeholder="Zip Code"
-              aria-label="Zip Code"
-              value={zipCode}
+            <Autocomplete
+              id="free-solo-demo"
+              autoSelect
+              freeSolo
+              options={favouriteZipCodes.map((zip_code) => zip_code.code)}
               onChange={changeZipCode}
-              maxLength="5"
+              renderInput={(params) => {
+                return <TextField
+                  {...params}
+                  inputProps={{...params.inputProps, maxLength: 5}}
+                  label="Zip Code"
+                />
+              }}
             />
             <button
               className="btn btn-outline-success my-2 my-sm-0"
@@ -128,7 +134,7 @@ function App() {
       </nav>
       <footer className="footer">
         <ul className="list-group" key={Object.keys(favouriteZipCodes).length} data-testid="favourite_zip_codes">
-          {favouriteZipCodes.length && favouriteZipCodes.map((zip_code, index) =>
+          {favouriteZipCodes.length ? favouriteZipCodes.map((zip_code, index) =>
             <li
               className="list-group-item"
               key={`${zip_code.name}-${zip_code.code}-${index}`}
@@ -143,12 +149,12 @@ function App() {
                 X
               </button>
             </li>
-          )}
+          ) : null }
         </ul>
 
         {!dataError && Object.keys(data).length &&
           <div contentEditable="true" spellcheckker="false">
-            <div className="card" style={{'margin-top': '30px'}}>
+            <div className="card" style={{'marginTop': '30px'}}>
               <div className="card mt0">
                 <div className="card-body mt0">
                   <h4 className="card-title">

@@ -36,3 +36,18 @@
     transform: rotate(360deg);
   }
 }
+
+.MuiFormControl-root {
+  width: 200px !important;
+  margin-right: 20px !important;
+  height: 40px !important;
+}
+
+.MuiInputBase-root {
+  width: 200px !important;
+  height: 40px !important;
+}
+
+.MuiFormLabel-root {
+  top: -5px !important;
+}
