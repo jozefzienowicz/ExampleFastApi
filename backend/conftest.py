@@ -4,12 +4,14 @@ from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, scoped_session
 
-from backend.api.db.db import Base, get_db
-from backend.app import app
+from api.db.db import Base, get_db
+from app import app
 
 SQLALCHEMY_DATABASE_URL = "sqlite:///./test.db"
 
-engine = create_engine(SQLALCHEMY_DATABASE_URL)
+engine = create_engine(
+    SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False}
+)
 
 TestingSessionLocal = scoped_session(sessionmaker(autocommit=False, autoflush=False, bind=engine))
 
@@ -23,7 +25,7 @@ def session():
     Base.metadata.create_all(bind=engine)
 
     db = TestingSessionLocal()
-    try
+    try:
         yield db
     finally:
         db.close()
@@ -38,7 +40,7 @@ def client(session):
             session.close()
 
     app.dependency_overrides[get_db] = override_get_db
-    from backend.api.endpoints import favourite_zip_codes
+    from api.endpoints import favourite_zip_codes
 
     app.include_router(favourite_zip_codes.router)
 

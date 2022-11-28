@@ -1,6 +1,6 @@
 from sqlalchemy import Column, String, Integer
 
-from backend.api.db.db import Base, engine
+from api.db.db import Base, engine
 
 
 class FavouriteZipCode(Base):

@@ -2,9 +2,9 @@ from fastapi import APIRouter, Depends, Request
 from sqlalchemy.orm import Session
 from typing import List
 
-from backend.api.db.db import get_db
-from backend.api.models.favourite_zip_codes import FavouriteZipCode
-from backend.api.schemas.favourite_zip_codes import FavouriteZipCodeSchema
+from api.db.db import get_db
+from api.models.favourite_zip_codes import FavouriteZipCode
+from api.schemas.favourite_zip_codes import FavouriteZipCodeSchema, FavouriteZipCodeCreateSchema
 
 router = APIRouter(
     prefix="/api/favourite_zip_code",
@@ -23,7 +23,7 @@ async def get_codes_by_user_list(
 
 @router.post("/", response_model=FavouriteZipCodeSchema)
 async def create_code(
-    zip_code_data: FavouriteZipCodeSchema,
+    zip_code_data: FavouriteZipCodeCreateSchema,
     db: Session = Depends(get_db)
 ):
     zip_code = FavouriteZipCode(**zip_code_data.dict())

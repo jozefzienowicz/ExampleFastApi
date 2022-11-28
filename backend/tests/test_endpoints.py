@@ -4,15 +4,16 @@ def test_empty_favourite_codes(client):
     assert response.status_code == 200
     assert response.json() == []
 
+
 def test_create_favourite_code(client):
     data = {
-        name: 'test_name',
-        code: '12345',
-        user_cookie: '54321',
+        'name': 'test_name',
+        'code': '12345',
+        'user_cookie': '54321',
     }
     response = client.post(
         "/api/favourite_zip_code/",
-        json = data,
+        json=data,
     )
 
     assert response.status_code == 200
@@ -24,15 +25,16 @@ def test_create_favourite_code(client):
     assert response_json['user_cookie'] == data['user_cookie']
     assert 'id' in response_json.keys()
 
+
 def test_delete_favourite_code(client):
     data = {
-        name: 'test_name',
-        code: '12345',
-        user_cookie: '54321',
+        'name': 'test_name',
+        'code': '12345',
+        'user_cookie': '54321',
     }
     response = client.post(
         "/api/favourite_zip_code/",
-        json = data,
+        json=data,
     )
     response_json = response.json()
     new_zip_code_id = response_json['id']

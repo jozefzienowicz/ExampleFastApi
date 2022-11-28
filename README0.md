@@ -1,2 +1,0 @@
-# FastApi
-test project
